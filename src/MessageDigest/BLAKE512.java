@@ -206,39 +206,39 @@ public class BLAKE512 extends java.security.MessageDigest {
         bufferpos++;
         if (bufferpos == 128){
             l[0] += 1024;
-            hashBlock(buffer,0);
+            hashBlock();
             bufferpos = 0;
         }
     }
 
     @Override
     protected void engineUpdate(byte[] input, int offset, int len) {
-        while (len > 128){
-            if (bufferpos == 0){
+        // fill internal buffer
+        if (bufferpos > 0){
+            if (len >= 128-bufferpos){
+                java.lang.System.arraycopy(input, offset, buffer, bufferpos, 128-bufferpos);
+                l[0] += 1024;
+                len -= 128-bufferpos;
+                offset += 128-bufferpos;
+                bufferpos = 0;
+                hashBlock();
+            } else {
+                java.lang.System.arraycopy(input, offset, buffer, bufferpos, len);
+                bufferpos += len;
+                return;
+            }
+        }
+        // calculate hash from input for higher performance
+        while (len >= 128){
                 l[0] += 1024;
                 hashBlock(input,offset);
                 offset += 128;
                 len -= 128;
-            } else {
-                java.lang.System.arraycopy(input, offset, buffer, bufferpos, 128-bufferpos);
-                l[0] += 1024;
-                hashBlock();
-                offset += 128-bufferpos;
-                len -= 128-bufferpos;
-                bufferpos = 0;
-            }
         }
-        if (len > (128-bufferpos)){
-            java.lang.System.arraycopy(input, offset, buffer, bufferpos, 128-bufferpos);
-            l[0] += 1024;
-            hashBlock();
-            offset += 128-bufferpos;
-            len -= 128-bufferpos;
-            bufferpos = 0;
-        }
+        // buffer remaining data
         if (len>0){
-            java.lang.System.arraycopy(input, offset, buffer, bufferpos, len);
-            bufferpos += len;
+            java.lang.System.arraycopy(input, offset, buffer, 0, len);
+            bufferpos = len;
         }
     }
 

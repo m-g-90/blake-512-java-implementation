@@ -261,6 +261,7 @@ public class BLAKE512 extends java.security.MessageDigest {
                 java.util.Arrays.fill(m, 0);                                                                //reset buffer
                 m[15] = l[0];                                                                               //append bit length
                 m[13] = 1;                                                                                  // set bit 1 before the 128 bit length value
+                l[0] = 0;                                                                                   // set length to 0 because this block contains no message data
                 Calculate(v,h,m,s,l);                                                                       //hash
             } else {
                 // if the datalength doesn't exceed 111 byte then the padding can be done within the current block

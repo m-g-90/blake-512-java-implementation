@@ -254,7 +254,7 @@ public class BLAKE512 extends java.security.MessageDigest {
                 for (int i = 0;i<bufferpos ;i++){                                                           //slower conversion implementation but compatible with uneven bytecount
                     m[i>>3] = m[i>>3] + ((buffer[i]&0xFFL)<<((7-(i&7))*8));
                 }
-                m[bufferpos>>3] = m[bufferpos>>3] + ((Byte.MIN_VALUE)&0xFFL)<<((7-(bufferpos&7))*8);        //append bit 1 as specified
+                m[bufferpos>>3] = m[bufferpos>>3] | ((Byte.MIN_VALUE)&0xFFL)<<((7-(bufferpos&7))*8);        //append bit 1 as specified
                 l[0] = l[0]+(bufferpos *8);                                                                 // increase bit counter
                 Calculate(v,h,m,s,l);                                                                       //hash
                 //Block 2
@@ -269,7 +269,7 @@ public class BLAKE512 extends java.security.MessageDigest {
                 for (int i = 0;i<bufferpos ;i++){                                                           //slower conversion implementation but compatible with uneven bytecount
                     m[i>>3] = m[i>>3] + ((buffer[i]&0xFFL)<<((7-(i&7))*8));
                 }
-                m[bufferpos>>3] = m[bufferpos>>3] + ((Byte.MIN_VALUE)&0xFFL)<<((7-(bufferpos&7))*8);        //append bit 1 as specified
+                m[bufferpos>>3] = m[bufferpos>>3] | ((Byte.MIN_VALUE)&0xFFL)<<((7-(bufferpos&7))*8);        //append bit 1 as specified
                 m[13] = m[13] + 1;                                                                          // set bit 1 before the 128 bit length value
                 l[0] = l[0] + (bufferpos*8);                                                                // increase bit counter
                 m[15] = l[0];                                                                               //append bit length

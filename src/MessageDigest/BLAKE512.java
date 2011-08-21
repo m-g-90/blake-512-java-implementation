@@ -11,6 +11,8 @@ public class BLAKE512 extends java.security.MessageDigest {
         super("BLAKE-512");
     }
     
+    private static final int ROUNDS = 16;
+    
     private static final long intmask = (((long)Integer.MAX_VALUE)<<1)|1;
     
     private static final int perm[][] = 
@@ -104,19 +106,22 @@ public class BLAKE512 extends java.security.MessageDigest {
     }
 
     
-    // internal buffer for one block (1024 bit)
+    // internal buffer for one block of data (1024 bit)
     private final byte[] buffer = new byte[128];
     private int bufferpos = 0;
-    // internal buffer for one converted block (16 * long)
+    
+    // internal buffer for one converted block of data(16 * long)
     private final long[] m = new long[16];
+    
     // internal buffer for hash state (16 * long)
     private final long[] v = new long[16];
+    
     /** internal buffer for total bit-length of the message
      * IMPORTANT NOTICE:    DUE TO THE HIGH UNLIKELINESS OF A MESSAGE THAT EXCEEDS 2^63 bits ( = 1.153 exabytes)
      *                      ONLY THE LAST 63 BITs OF THE SPECIFIED 128 BITs ARE IN USE 
-     *                      (thanks to java-devs for not liking unsigned types it would be complex to implement the full 128bit)
     */
     private final long[] l = {0,0};
+    
     // internal buffer for salt (4 * long)
     private final long[] s = new long[4];
     
@@ -175,7 +180,7 @@ public class BLAKE512 extends java.security.MessageDigest {
     }
     private void Calculate(long[] v,long[] h,long[] m,long[] s,long[] l){
         Initialize(v,h,s,l[0],l[1]); 
-        for (int i = 0 ; i<16;i++){
+        for (int i = 0 ; i<ROUNDS;i++){
             Round(i,v,m);
         }
         Finalize(v,h,s);
@@ -199,7 +204,7 @@ public class BLAKE512 extends java.security.MessageDigest {
     protected void engineUpdate(byte input) {
         buffer[bufferpos] = input;
         bufferpos++;
-        if (bufferpos == buffer.length){
+        if (bufferpos == 128){
             l[0] += 1024;
             hashBlock(buffer,0);
             bufferpos = 0;
@@ -235,9 +240,6 @@ public class BLAKE512 extends java.security.MessageDigest {
             java.lang.System.arraycopy(input, offset, buffer, bufferpos, len);
             bufferpos += len;
         }
-//        for (int i = 0;i<8 ;i++){
-//            java.lang.System.out.println(Long.toHexString(h[i]));
-//        }
     }
 
     @Override
@@ -245,45 +247,49 @@ public class BLAKE512 extends java.security.MessageDigest {
         byte[] retur = new byte[64];
         if (retur != null){
             if (bufferpos >111){
-                java.util.Arrays.fill(m, 0);
-                for (int i = 0;i<bufferpos ;i++){
+                // if the datalength exceeds 111 bytes 2 blocks are needed for padding
+                //Block 1
+                java.util.Arrays.fill(m, 0);                                                                //reset buffer
+                
+                for (int i = 0;i<bufferpos ;i++){                                                           //slower conversion implementation but compatible with uneven bytecount
                     m[i>>3] = m[i>>3] + ((buffer[i]&0xFFL)<<((7-(i&7))*8));
                 }
-                m[bufferpos>>3] = m[bufferpos>>3] + ((Byte.MIN_VALUE)&0xFFL)<<((7-(bufferpos&7))*8);
-                l[0] = l[0]+(bufferpos *8);
-                Calculate(v,h,m,s,l);
-                java.util.Arrays.fill(m, 0);
-                m[15] = l[0];
-                m[13] = 1;
-                Calculate(v,h,m,s,l);
+                m[bufferpos>>3] = m[bufferpos>>3] + ((Byte.MIN_VALUE)&0xFFL)<<((7-(bufferpos&7))*8);        //append bit 1 as specified
+                l[0] = l[0]+(bufferpos *8);                                                                 // increase bit counter
+                Calculate(v,h,m,s,l);                                                                       //hash
+                //Block 2
+                java.util.Arrays.fill(m, 0);                                                                //reset buffer
+                m[15] = l[0];                                                                               //append bit length
+                m[13] = 1;                                                                                  // set bit 1 before the 128 bit length value
+                Calculate(v,h,m,s,l);                                                                       //hash
             } else {
-                java.util.Arrays.fill(m, 0);
-                for (int i = 0;i<bufferpos ;i++){
+                // if the datalength doesn't exceed 111 byte then the padding can be done within the current block
+                java.util.Arrays.fill(m, 0);                                                                //reset buffer
+                for (int i = 0;i<bufferpos ;i++){                                                           //slower conversion implementation but compatible with uneven bytecount
                     m[i>>3] = m[i>>3] + ((buffer[i]&0xFFL)<<((7-(i&7))*8));
                 }
-                m[bufferpos>>3] = m[bufferpos>>3] + ((Byte.MIN_VALUE)&0xFFL)<<((7-(bufferpos&7))*8);
-                m[13] = m[13] + 1;
-                l[0] = l[0] + (bufferpos*8);
-                m[15] = l[0];
-                Calculate(v,h,m,s,l);
+                m[bufferpos>>3] = m[bufferpos>>3] + ((Byte.MIN_VALUE)&0xFFL)<<((7-(bufferpos&7))*8);        //append bit 1 as specified
+                m[13] = m[13] + 1;                                                                          // set bit 1 before the 128 bit length value
+                l[0] = l[0] + (bufferpos*8);                                                                // increase bit counter
+                m[15] = l[0];                                                                               //append bit length
+                Calculate(v,h,m,s,l);                                                                       //hash
             }
-//            System.out.println();
+//            System.out.println();                                                                           //debug
             for (int i = 0;i<8 ;i++){
                 putLong(retur,i*8,h[i]);
-//                java.lang.System.out.println(Long.toHexString(h[i]));
+//                java.lang.System.out.println(Long.toHexString(h[i]));                                       //debug
             }
         }
-        engineReset();
+        engineReset();                                                                                      // reset engine
         return retur;
     }
 
     @Override
-    protected void engineReset() {
-        java.util.Arrays.fill(l, 0);
-        java.lang.System.arraycopy(initialvalue, 0, h, 0, 8);
-        java.lang.System.arraycopy(nullsalt,0,s,0,4);
-        bufferpos = 0;
-        l[0] = 0;
+    protected void engineReset() { 
+        java.util.Arrays.fill(l, 0);                                //reset bit-counter
+        java.lang.System.arraycopy(initialvalue, 0, h, 0, 8);       //reset hash to initial value
+        java.lang.System.arraycopy(nullsalt,0,s,0,4);               //reset salt
+        bufferpos = 0;                                              //reset buffer position
     }
     
 }

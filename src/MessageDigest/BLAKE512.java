@@ -13,8 +13,6 @@ public class BLAKE512 extends java.security.MessageDigest {
     
     private static final int ROUNDS = 16;
     
-    private static final long intmask = (((long)Integer.MAX_VALUE)<<1)|1;
-    
     private static final int perm[][] = 
     {
         {0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15},
@@ -30,36 +28,33 @@ public class BLAKE512 extends java.security.MessageDigest {
     };
     
     private static final long initialvalue[] = {
-        (((long)0x6A09E667)<<32)| (((long)0xF3BCC908)&intmask),
-        (((long)0xBB67AE85)<<32)| (((long)0x84CAA73B)&intmask),
-        (((long)0x3C6EF372)<<32)| (((long)0xFE94F82B)&intmask),
-        (((long)0xA54FF53A)<<32)| (((long)0x5F1D36F1)&intmask),
-        (((long)0x510E527F)<<32)| (((long)0xADE682D1)&intmask),
-        (((long)0x9B05688C)<<32)| (((long)0x2B3E6C1F)&intmask),
-        (((long)0x1F83D9AB)<<32)| (((long)0xFB41BD6B)&intmask),
-        (((long)0x5BE0CD19)<<32)| (((long)0x137E2179)&intmask)
+        0x6A09E667F3BCC908L,
+        0xBB67AE8584CAA73BL,
+        0x3C6EF372FE94F82BL,
+        0xA54FF53A5F1D36F1L,
+        0x510E527FADE682D1L,
+        0x9B05688C2B3E6C1FL,
+        0x1F83D9ABFB41BD6BL,
+        0x5BE0CD19137E2179L
     };
     
     private static final long constant[] = {
-        (((long)0x243F6A88)<<32)|(((long)0x85A308D3)&intmask),
-        (((long)0x13198A2E)<<32)|(((long)0x03707344)&intmask),
-        (((long)0xA4093822)<<32)|(((long)0x299F31D0)&intmask),
-        (((long)0x082EFA98)<<32)|(((long)0xEC4E6C89)&intmask),
-        
-        (((long)0x452821E6)<<32)|(((long)0x38D01377)&intmask),
-        (((long)0xBE5466CF)<<32)|(((long)0x34E90C6C)&intmask),
-        (((long)0xC0AC29B7)<<32)|(((long)0xC97C50DD)&intmask),
-        (((long)0x3F84D5B5)<<32)|(((long)0xB5470917)&intmask),
-        
-        (((long)0x9216D5D9)<<32)|(((long)0x8979FB1B)&intmask),
-        (((long)0xD1310BA6)<<32)|(((long)0x98DFB5AC)&intmask),
-        (((long)0x2FFD72DB)<<32)|(((long)0xD01ADFB7)&intmask),
-        (((long)0xB8E1AFED)<<32)|(((long)0x6A267E96)&intmask),
-        
-        (((long)0xBA7C9045)<<32)|(((long)0xF12C7F99)&intmask),
-        (((long)0x24A19947)<<32)|(((long)0xB3916CF7)&intmask),
-        (((long)0x0801F2E2)<<32)|(((long)0x858EFC16)&intmask),
-        (((long)0x636920D8)<<32)|(((long)0x71574E69)&intmask)
+        0x243F6A8885A308D3L,
+        0x13198A2E03707344L,
+        0xA4093822299F31D0L,
+        0x082EFA98EC4E6C89L,
+        0x452821E638D01377L, 
+        0xBE5466CF34E90C6CL,
+        0xC0AC29B7C97C50DDL, 
+        0x3F84D5B5B5470917L,
+        0x9216D5D98979FB1BL, 
+        0xD1310BA698DFB5ACL,
+        0x2FFD72DBD01ADFB7L, 
+        0xB8E1AFED6A267E96L,
+        0xBA7C9045F12C7F99L, 
+        0x24A19947B3916CF7L,
+        0x0801F2E2858EFC16L, 
+        0x636920D871574E69L
     };
     
     private static final long nullsalt[] = 

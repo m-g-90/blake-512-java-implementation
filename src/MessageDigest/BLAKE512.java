@@ -80,18 +80,6 @@ public class BLAKE512 extends java.security.MessageDigest {
         0,
         0
     };
-
-    // corresponding a,...,d index for a given i
-    public static final int[][] Gindex = {
-        {0,4,8,12},
-        {1,5,9,13},
-        {2,6,10,14},
-        {3,7,11,15},
-        {0,5,10,15},
-        {1,6,11,12},
-        {2,7,8,13},
-        {3,4,9,14}
-    };
     
     //byte to long conversion
     static long getLong(byte[] b, int off) {
@@ -140,42 +128,182 @@ public class BLAKE512 extends java.security.MessageDigest {
     private final long[] h = java.util.Arrays.copyOf(initialvalue, 8);
     
     
-    
-    private void G(int i,int r,long[] v,long[] m){
-        int a = Gindex[i][0];
-        int b = Gindex[i][1];
-        int c = Gindex[i][2];
-        int d = Gindex[i][3];
-        
-        int i_pc0 = perm[r][2*i];
-        int i_pc1 = perm[r][2*i+1];
-        
-        v[a] = v[a] + v[b] + ( m[i_pc0] ^ constant[i_pc1]);
-        
-        v[d] = java.lang.Long.rotateRight((v[d] ^ v[a]),32);
-        
-        v[c] = v[c] + v[d];
-        
-        v[b] = java.lang.Long.rotateRight((v[b] ^ v[c]),25);
-        
-        v[a] = v[a] + v[b] + ( m[i_pc1] ^ constant[i_pc0]);
-        
-        v[d] = java.lang.Long.rotateRight((v[d] ^ v[a]),16);
-        
-        v[c] = v[c] + v[d];
-        
-        v[b] = java.lang.Long.rotateRight((v[b] ^ v[c]),11);
-        
-    }
     private void Round(int r,long[] v,long[] m){
-        G(0,r,v,m);
-        G(1,r,v,m);
-        G(2,r,v,m);
-        G(3,r,v,m);
-        G(4,r,v,m);
-        G(5,r,v,m);
-        G(6,r,v,m);
-        G(7,r,v,m);
+        // G 0
+        
+        int i_pc0 = perm[r][0];
+        int i_pc1 = perm[r][1];
+
+        v[0] = v[0] + v[4] + ( m[i_pc0] ^ constant[i_pc1]);
+
+        v[12] = java.lang.Long.rotateRight((v[12] ^ v[0]),32);
+
+        v[8] = v[8] + v[12];
+
+        v[4] = java.lang.Long.rotateRight((v[4] ^ v[8]),25);
+
+        v[0] = v[0] + v[4] + ( m[i_pc1] ^ constant[i_pc0]);
+
+        v[12] = java.lang.Long.rotateRight((v[12] ^ v[0]),16);
+
+        v[8] = v[8] + v[12];
+
+        v[4] = java.lang.Long.rotateRight((v[4] ^ v[8]),11);
+
+        
+        // G 1
+
+        i_pc0 = perm[r][2];
+        i_pc1 = perm[r][3];
+
+        v[1] = v[1] + v[5] + ( m[i_pc0] ^ constant[i_pc1]);
+
+        v[13] = java.lang.Long.rotateRight((v[13] ^ v[1]),32);
+
+        v[9] = v[9] + v[13];
+
+        v[5] = java.lang.Long.rotateRight((v[5] ^ v[9]),25);
+
+        v[1] = v[1] + v[5] + ( m[i_pc1] ^ constant[i_pc0]);
+
+        v[13] = java.lang.Long.rotateRight((v[13] ^ v[1]),16);
+
+        v[9] = v[9] + v[13];
+
+        v[5] = java.lang.Long.rotateRight((v[5] ^ v[9]),11);
+            
+        
+        // G 2
+        
+        i_pc0 = perm[r][4];
+        i_pc1 = perm[r][5];
+
+        v[2] = v[2] + v[6] + ( m[i_pc0] ^ constant[i_pc1]);
+
+        v[14] = java.lang.Long.rotateRight((v[14] ^ v[2]),32);
+
+        v[10] = v[10] + v[14];
+
+        v[6] = java.lang.Long.rotateRight((v[6] ^ v[10]),25);
+
+        v[2] = v[2] + v[6] + ( m[i_pc1] ^ constant[i_pc0]);
+
+        v[14] = java.lang.Long.rotateRight((v[14] ^ v[2]),16);
+
+        v[10] = v[10] + v[14];
+
+        v[6] = java.lang.Long.rotateRight((v[6] ^ v[10]),11);
+
+        
+        // G 3
+
+        i_pc0 = perm[r][6];
+        i_pc1 = perm[r][7];
+
+        v[3] = v[3] + v[7] + ( m[i_pc0] ^ constant[i_pc1]);
+
+        v[15] = java.lang.Long.rotateRight((v[15] ^ v[3]),32);
+
+        v[11] = v[11] + v[15];
+
+        v[7] = java.lang.Long.rotateRight((v[7] ^ v[11]),25);
+
+        v[3] = v[3] + v[7] + ( m[i_pc1] ^ constant[i_pc0]);
+
+        v[15] = java.lang.Long.rotateRight((v[15] ^ v[3]),16);
+
+        v[11] = v[11] + v[15];
+
+        v[7] = java.lang.Long.rotateRight((v[7] ^ v[11]),11);
+
+            
+        // G 4
+
+        i_pc0 = perm[r][8];
+        i_pc1 = perm[r][9];
+
+        v[0] = v[0] + v[5] + ( m[i_pc0] ^ constant[i_pc1]);
+
+        v[15] = java.lang.Long.rotateRight((v[15] ^ v[0]),32);
+
+        v[10] = v[10] + v[15];
+
+        v[5] = java.lang.Long.rotateRight((v[5] ^ v[10]),25);
+
+        v[0] = v[0] + v[5] + ( m[i_pc1] ^ constant[i_pc0]);
+
+        v[15] = java.lang.Long.rotateRight((v[15] ^ v[0]),16);
+
+        v[10] = v[10] + v[15];
+
+        v[5] = java.lang.Long.rotateRight((v[5] ^ v[10]),11);
+        
+            
+        // G 5
+
+        i_pc0 = perm[r][10];
+        i_pc1 = perm[r][11];
+
+        v[1] = v[1] + v[6] + ( m[i_pc0] ^ constant[i_pc1]);
+
+        v[12] = java.lang.Long.rotateRight((v[12] ^ v[1]),32);
+
+        v[11] = v[11] + v[12];
+
+        v[6] = java.lang.Long.rotateRight((v[6] ^ v[11]),25);
+
+        v[1] = v[1] + v[6] + ( m[i_pc1] ^ constant[i_pc0]);
+
+        v[12] = java.lang.Long.rotateRight((v[12] ^ v[1]),16);
+
+        v[11] = v[11] + v[12];
+
+        v[6] = java.lang.Long.rotateRight((v[6] ^ v[11]),11);
+
+            
+        // G 6
+
+        i_pc0 = perm[r][12];
+        i_pc1 = perm[r][13];
+
+        v[2] = v[2] + v[7] + ( m[i_pc0] ^ constant[i_pc1]);
+
+        v[13] = java.lang.Long.rotateRight((v[13] ^ v[2]),32);
+
+        v[8] = v[8] + v[13];
+
+        v[7] = java.lang.Long.rotateRight((v[7] ^ v[8]),25);
+
+        v[2] = v[2] + v[7] + ( m[i_pc1] ^ constant[i_pc0]);
+
+        v[13] = java.lang.Long.rotateRight((v[13] ^ v[2]),16);
+
+        v[8] = v[8] + v[13];
+
+        v[7] = java.lang.Long.rotateRight((v[7] ^ v[8]),11);
+
+            
+        // G 7
+        
+        i_pc0 = perm[r][14];
+        i_pc1 = perm[r][15];
+
+        v[3] = v[3] + v[4] + ( m[i_pc0] ^ constant[i_pc1]);
+
+        v[14] = java.lang.Long.rotateRight((v[14] ^ v[3]),32);
+
+        v[9] = v[9] + v[14];
+
+        v[4] = java.lang.Long.rotateRight((v[4] ^ v[9]),25);
+
+        v[3] = v[3] + v[4] + ( m[i_pc1] ^ constant[i_pc0]);
+
+        v[14] = java.lang.Long.rotateRight((v[14] ^ v[3]),16);
+
+        v[9] = v[9] + v[14];
+
+        v[4] = java.lang.Long.rotateRight((v[4] ^ v[9]),11);
+        
     }
     private void Finalize (long[] v,long[] h,long[] s){
         h[0] = h[0] ^ s[0] ^ v[0] ^ v[8];

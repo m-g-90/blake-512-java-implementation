@@ -147,7 +147,10 @@ public class BLAKE512 extends java.security.MessageDigest {
         int c = Gindex[i][2];
         int d = Gindex[i][3];
         
-        v[a] = v[a] + v[b] + ( m[perm[r][2*i]] ^ constant[perm[r][(2*i)+1]]);
+        int i_pc0 = perm[r][2*i];
+        int i_pc1 = perm[r][2*i+1];
+        
+        v[a] = v[a] + v[b] + ( m[i_pc0] ^ constant[i_pc1]);
         
         v[d] = java.lang.Long.rotateRight((v[d] ^ v[a]),32);
         
@@ -155,7 +158,7 @@ public class BLAKE512 extends java.security.MessageDigest {
         
         v[b] = java.lang.Long.rotateRight((v[b] ^ v[c]),25);
         
-        v[a] = v[a] + v[b] + ( m[perm[r][(2*i)+1]] ^ constant[perm[r][2*i]]);
+        v[a] = v[a] + v[b] + ( m[i_pc1] ^ constant[i_pc0]);
         
         v[d] = java.lang.Long.rotateRight((v[d] ^ v[a]),16);
         

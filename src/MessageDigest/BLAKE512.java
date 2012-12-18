@@ -425,6 +425,8 @@ public class BLAKE512 extends java.security.MessageDigest {
                 m[13] = m[13] + 1;                                                                          // set bit 1 before the 128 bit length value
                 l[0] = l[0] + (bufferpos*8);                                                                // increase bit counter
                 m[15] = l[0];                                                                               //append bit length
+                if (bufferpos == 0)                                                                         // set length to 0 if this block contains no message data
+                    l[0] = 0;
                 Calculate(v,h,m,s,l);                                                                       //hash
             }
 //            System.out.println();                                                                           //debug
